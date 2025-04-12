@@ -1,0 +1,226 @@
+/* Main Container */
+.insights-container {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  color: #333;
+}
+
+/* Document Header */
+.document-header {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+.document-type {
+  margin: 0;
+  color: #2c3e50;
+}
+.document-purpose {
+  margin: 10px 0 0;
+  font-size: 1.1rem;
+}
+
+/* Metrics Row */
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+.metric-card {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+.metric-card h4 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  color: #555;
+}
+.metric-value {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+/* Charts Row */
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+.chart-container {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.chart-container h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #2c3e50;
+}
+
+/* Analysis Sections */
+.analysis-section,
+.entities-section,
+.recommendations-section {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+.two-column-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Lists */
+.styled-list {
+  padding-left: 20px;
+}
+.styled-list li {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+/* Tags */
+.entity-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.entity-tag {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+/* Recommendation Cards */
+.recommendation-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.recommendation-card {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 6px;
+}
+
+/* Progress indicators */
+.progress-container {
+  margin-top: 20px;
+  height: 24px;
+  background: #f0f0f0;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #4caf50, #8bc34a);
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  line-height: 24px;
+  color: #333;
+  font-size: 0.8rem;
+}
+
+.upload-progress {
+  margin-top: 10px;
+  height: 4px;
+  background: #f0f0f0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.upload-progress .progress-bar {
+  height: 100%;
+  background: #4caf50;
+  transition: width 0.3s ease;
+}
+
+/* Document styling */
+.document-content {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+.document-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 2rem 0 1rem;
+  color: #1a365d;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.5rem;
+}
+
+.document-section {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.75rem;
+  color: #2d3748;
+}
+
+.document-subsection {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 1.25rem 0 0.5rem;
+  color: #4a5568;
+}
+
+.document-paragraph {
+  margin: 0.75rem 0;
+  text-align: justify;
+}
+
+.document-list {
+  margin: 0.75rem 0;
+  padding-left: 2rem;
+}
+
+.document-list-item {
+  margin: 0.25rem 0;
+  list-style-type: disc;
+}
+
+/* For numbered lists */
+.document-list[style*="decimal"] {
+  list-style-type: decimal;
+}
+
+.document-list[style*="decimal"] .document-list-item {
+  list-style-type: decimal;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .charts-row,
+  .two-column-grid,
+  .recommendation-cards {
+    grid-template-columns: 1fr;
+  }
+  .metrics-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
