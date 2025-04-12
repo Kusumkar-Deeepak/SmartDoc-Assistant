@@ -1,54 +1,50 @@
-# SmartDoc-AI 📄✨
+<h1 align="center" id="title">SmartDoc-AI 📄✨</h1>
 
-**Your Intelligent Document Processing Assistant**
+<p id="description">Your Intelligent AI-powered Document Processing Assistant. Extract analyze summarize and interact with documents using cutting-edge technology.</p>
 
-![SmartDoc Banner](https://via.placeholder.com/1200x400?text=SmartDoc-AI+Banner)
+<p align="center"><img src="https://img.shields.io/badge/license-MIT-green" alt="shields"><img src="https://img.shields.io/badge/Frontend-React-blue" alt="shields"><img src="https://img.shields.io/badge/Backend-Node.js-brightgreen" alt="shields"><img src="https://img.shields.io/badge/Styling-TailwindCSS-blueviolet" alt="shields"><img src="https://img.shields.io/badge/Auth-Auth0-orange" alt="shields"></p>
 
-## 🌟 Features
+<h2>🚀 Demo</h2>
 
-### 1. Upload & Extract
-- Supports PDF, DOCX, TXT, JPG, PNG formats
-- Text extraction with formatting preservation
-- Search, copy, zoom in/out functionality
+[http://localhost:5147](http://localhost:5147)
 
-### 2. AI Summarization
-- Generate concise document summaries
-- Text-to-speech functionality
-- One-click copy summaries
+  
+  
+<h2>🧐 Features</h2>
 
-### 3. Insight Mirror
-- Deep document intelligence analysis
-- Sentiment & bias detection
-- Key entity extraction
-- Visual data representations
+Here're some of the project's best features:
 
-### 4. AI Q&A
-- Ask questions about documents
-- Get AI-powered answers
-- Multi-document analysis
+*   📤 Upload and extract text from PDF DOCX TXT JPG PNG
+*   🧠 AI Summarization with text-to-speech
+*   🔍 Insight Mirror: Sentiment bias and key entities
+*   💬 Ask AI questions about documents
+*   🗂️ Manage documents with security and password protection
+*   🎨 Dark/Light Mode with system detection
+*   🔐 Auth0 Authentication (Email)
+*   📊 Visual data representation with charts/graphs
 
-### 5. Manage Docs
-- Secure document storage
-- Password protection
-- Easy download/delete options
+<h2>🍰 Contribution Guidelines:</h2>
 
-## 🚀 Getting Started
+1\. Fork the repository 2. Create your branch (\`git checkout -b feature/AmazingFeature\`) 3. Commit your changes (\`git commit -m 'Add some amazing feature'\`) 4. Push to the branch (\`git push origin feature/AmazingFeature\`) 5. Open a Pull Request 🚀
 
-### Prerequisites
-- Node.js (v16+)
-- npm (v8+)
-- Auth0 account (for authentication)
+  
+  
+<h2>💻 Built with</h2>
 
-### Installation
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/smartdoc-ai.git
+Technologies used in the project:
 
-# Navigate to project directory
-cd smartdoc-ai
+*   React.js
+*   Vite
+*   Tailwind CSS
+*   Framer Motion
+*   React Icons
 
-# Install dependencies
-npm install
+<h2>🛡️ License:</h2>
 
-# Start development server
-npm run dev
+This project is licensed under the MIT License - see the LICENSE file for more details.
+
+<h2>💖Like my work?</h2>
+
+\### 📧 Contact For support or inquiries: \*\*Deepak Prakash Kusumkar\*\* 📫 deeepakkusumkar@gmail.com 🌐 \[Project Website\](https://your-project-site.com) ---
+
+Built with ❤️ by Team SmartDoc AI
