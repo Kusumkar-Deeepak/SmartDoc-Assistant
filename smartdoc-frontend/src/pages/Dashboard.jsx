@@ -233,7 +233,7 @@ const Dashboard = () => {
               {/* Header */}
               <div className="flex justify-between items-center px-6 py-4 border-b">
                 <h3 className="text-xl font-semibold text-gray-800">
-                  Settings - comming Soon
+                  Settings
                 </h3>
                 <button
                   onClick={() => setIsOpen(false)}
