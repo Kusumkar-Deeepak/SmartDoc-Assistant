@@ -34,6 +34,7 @@ const Dashboard = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState(true);
   const [language, setLanguage] = useState("en");
+
   const { darkMode, setDarkMode } = useTheme();
 
   // Redirect if not authenticated
@@ -127,6 +128,7 @@ const Dashboard = () => {
           <div className="flex items-center space-x-3 p-3 rounded-lg bg-indigo-700">
             <img
               src={
+                user.picture ||
                 user?.picture ||
                 `https://ui-avatars.com/api/?name=${encodeURIComponent(
                   user?.name?.includes("@")
@@ -228,26 +230,24 @@ const Dashboard = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 30 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden"
+              className="relative bg-white dark:bg-gray-900 dark:text-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden"
             >
               {/* Header */}
-              <div className="flex justify-between items-center px-6 py-4 border-b">
-                <h3 className="text-xl font-semibold text-gray-800">
-                  Settings
-                </h3>
+              <div className="flex justify-between items-center px-6 py-4 border-b dark:border-gray-700">
+                <h3 className="text-xl font-semibold">Settings</h3>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-2 rounded-full hover:bg-gray-100 transition"
+                  className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition"
                 >
                   <FiX size={22} />
                 </button>
               </div>
 
               {/* Content */}
-              <div className="px-6 py-5 overflow-y-auto space-y-6 text-gray-800">
+              <div className="px-6 py-5 overflow-y-auto space-y-6">
                 {/* Dark Mode Toggle */}
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 text-gray-700">
+                  <div className="flex items-center gap-3">
                     {darkMode ? <FiSun /> : <FiMoon />}
                     <span className="font-medium">Dark Mode</span>
                   </div>
@@ -268,7 +268,7 @@ const Dashboard = () => {
 
                 {/* Notifications Toggle */}
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 text-gray-700">
+                  <div className="flex items-center gap-3">
                     <FiBell />
                     <span className="font-medium">Notifications</span>
                   </div>
@@ -279,7 +279,7 @@ const Dashboard = () => {
                       onChange={() => setNotifications(!notifications)}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full" />
+                    <div className="w-11 h-6 bg-gray-200 dark:bg-gray-600 rounded-full peer peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full" />
                   </label>
                 </div>
 
@@ -289,7 +289,7 @@ const Dashboard = () => {
                   <select
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}
-                    className="flex-1 bg-gray-100 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 bg-gray-100 dark:bg-gray-800 dark:text-white border dark:border-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="en">English</option>
                     <option value="es">Spanish</option>
@@ -299,7 +299,7 @@ const Dashboard = () => {
               </div>
 
               {/* Footer */}
-              <div className="px-6 py-4 border-t flex justify-end">
+              <div className="px-6 py-4 border-t dark:border-gray-700 flex justify-end">
                 <button
                   onClick={() => setIsOpen(false)}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"

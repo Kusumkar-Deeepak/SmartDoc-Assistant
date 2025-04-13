@@ -1,5 +1,6 @@
-import { useState, useRef } from "react";
-import { FiMessageSquare, FiUpload, FiFile } from "react-icons/fi";
+import { useState, useRef, useCallback } from "react";
+import { FiMessageSquare, FiFile, FiX } from "react-icons/fi";
+import { useDropzone } from "react-dropzone";
 import {
   extractTextFromPDF,
   extractTextFromDocx,
@@ -17,19 +18,24 @@ const AIQnA = () => {
   const [numQuestions, setNumQuestions] = useState(3);
   const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false);
   const [generatedQuestions, setGeneratedQuestions] = useState([]);
-  const fileInputRef = useRef(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
-  const handleFileUpload = async (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length === 0) return;
+  const onDrop = useCallback(async (acceptedFiles) => {
+    if (acceptedFiles.length === 0) return;
 
     try {
       setIsAnswering(true);
-      const newDocs = await Promise.all(
-        files.map(async (file) => {
-          let text;
-          const fileType = file.type;
+      setUploadProgress(0);
 
+      const newDocs = [];
+      const totalFiles = acceptedFiles.length;
+
+      for (let i = 0; i < totalFiles; i++) {
+        const file = acceptedFiles[i];
+        let text;
+        const fileType = file.type;
+
+        try {
           if (fileType === "application/pdf") {
             text = await extractTextFromPDF(file);
           } else if (
@@ -49,14 +55,19 @@ const AIQnA = () => {
             throw new Error("Unsupported file type");
           }
 
-          return {
+          newDocs.push({
             id: `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             name: file.name,
             content: text,
             file,
-          };
-        })
-      );
+          });
+
+          setUploadProgress(Math.round(((i + 1) / totalFiles) * 100));
+        } catch (error) {
+          console.error(`Error processing ${file.name}:`, error);
+          // Continue with next file even if one fails
+        }
+      }
 
       setUploadedDocs((prev) => [...prev, ...newDocs]);
     } catch (error) {
@@ -64,7 +75,29 @@ const AIQnA = () => {
       alert(`Error processing files: ${error.message}`);
     } finally {
       setIsAnswering(false);
-      e.target.value = ""; // Reset file input
+      setUploadProgress(0);
+    }
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      "application/pdf": [".pdf"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        [".docx"],
+      "text/plain": [".txt"],
+      "image/jpeg": [".jpg", ".jpeg"],
+      "image/png": [".png"],
+    },
+    maxFiles: 10,
+    disabled: isAnswering,
+  });
+
+  const removeDocument = (id) => {
+    setUploadedDocs(uploadedDocs.filter((doc) => doc.id !== id));
+    if (selectedDoc === id) {
+      setSelectedDoc("");
+      setAnswer("");
     }
   };
 
@@ -125,30 +158,90 @@ const AIQnA = () => {
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Left Column - Inputs */}
         <div className="flex-1 space-y-4">
-          {/* Document Upload Section */}
+          {/* Document Upload Section with Dropzone */}
           <div className="border rounded-lg p-4 bg-white shadow-sm">
             <label className="block mb-2 font-medium">Upload Documents</label>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => fileInputRef.current.click()}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                <FiUpload /> Select Files
-              </button>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileUpload}
-                multiple
-                accept=".pdf,.docx,.txt,.jpg,.jpeg,.png"
-                className="hidden"
-              />
-              {isAnswering && <span className="text-gray-500">Processing documents...</span>}
+            <div
+              {...getRootProps()}
+              className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+                isDragActive
+                  ? "border-blue-500 bg-blue-50"
+                  : "border-gray-300 bg-gray-50"
+              } ${isAnswering ? "opacity-70 cursor-not-allowed" : ""}`}
+            >
+              <input {...getInputProps()} />
+              <div className="space-y-2">
+                <FiFile className="mx-auto h-10 w-10 text-gray-400" />
+                {isDragActive ? (
+                  <p className="text-blue-500">Drop the files here</p>
+                ) : (
+                  <>
+                    <p className="text-gray-600">
+                      Drag & drop files here, or click to select
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Supported formats: PDF, DOCX, TXT, JPG, PNG
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      (Max 10 files at once)
+                    </p>
+                  </>
+                )}
+              </div>
             </div>
-            <p className="mt-2 text-sm text-gray-500">
-              Supported formats: PDF, DOCX, TXT, JPG, PNG
-            </p>
+            {uploadProgress > 0 && uploadProgress < 100 && (
+              <div className="mt-2">
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div
+                    className="bg-blue-600 h-2.5 rounded-full"
+                    style={{ width: `${uploadProgress}%` }}
+                  ></div>
+                </div>
+                <p className="text-xs text-gray-500 text-center mt-1">
+                  Processing {uploadProgress}%
+                </p>
+              </div>
+            )}
           </div>
+
+          {/* Uploaded Documents List */}
+          {uploadedDocs.length > 0 && (
+            <div className="border rounded-lg p-4 bg-white shadow-sm">
+              <label className="block mb-2 font-medium">
+                Uploaded Documents
+              </label>
+              <ul className="space-y-2 max-h-60 overflow-y-auto">
+                {uploadedDocs.map((doc) => (
+                  <li
+                    key={doc.id}
+                    className={`flex items-center justify-between p-3 rounded ${
+                      selectedDoc === doc.id
+                        ? "bg-blue-50 border border-blue-200"
+                        : "bg-gray-50 hover:bg-gray-100"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <FiFile className="text-gray-500" />
+                      <span
+                        className="truncate max-w-xs cursor-pointer"
+                        onClick={() => setSelectedDoc(doc.id)}
+                        title={doc.name}
+                      >
+                        {doc.name}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => removeDocument(doc.id)}
+                      className="text-gray-400 hover:text-red-500"
+                      title="Remove document"
+                    >
+                      <FiX />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Document Selection */}
           <div className="border rounded-lg p-4 bg-white shadow-sm">
@@ -225,40 +318,42 @@ const AIQnA = () => {
               {answer ? (
                 <p className="whitespace-pre-wrap">{answer}</p>
               ) : (
-                <p className="text-gray-500">Ask a question to get an answer...</p>
+                <p className="text-gray-500">
+                  {selectedDoc
+                    ? "Ask a question to get an answer..."
+                    : "Select a document to begin"}
+                </p>
               )}
             </div>
           </div>
 
-          {/* Generated Questions - Now appears below on mobile */}
-          <div className="lg:hidden">
-            {generatedQuestions.length > 0 && (
-              <div className="border rounded-lg p-4 bg-white shadow-sm">
-                <h4 className="font-medium text-green-800 mb-3">
-                  Generated Questions
-                </h4>
-                <ul className="space-y-2">
-                  {generatedQuestions.map((q, i) => (
-                    <li
-                      key={i}
-                      className="p-3 bg-green-50 rounded border border-green-100 cursor-pointer hover:bg-green-100 transition-colors"
-                      onClick={() => setQuestion(q)}
-                    >
-                      <div className="flex items-start">
-                        <FiFile className="mt-1 mr-2 flex-shrink-0 text-green-600" />
-                        <span className="whitespace-pre-wrap">{q}</span>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
+          {/* Generated Questions - Mobile view */}
+          {generatedQuestions.length > 0 && (
+            <div className="lg:hidden border rounded-lg p-4 bg-white shadow-sm">
+              <h4 className="font-medium text-green-800 mb-3">
+                Generated Questions
+              </h4>
+              <ul className="space-y-2">
+                {generatedQuestions.map((q, i) => (
+                  <li
+                    key={i}
+                    className="p-3 bg-green-50 rounded border border-green-100 cursor-pointer hover:bg-green-100 transition-colors"
+                    onClick={() => setQuestion(q)}
+                  >
+                    <div className="flex items-start">
+                      <FiFile className="mt-1 mr-2 flex-shrink-0 text-green-600" />
+                      <span className="whitespace-pre-wrap">{q}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
-        {/* Generated Questions - Sidebar on desktop */}
-        <div className="hidden lg:block w-72">
-          {generatedQuestions.length > 0 && (
+        {/* Generated Questions - Desktop sidebar */}
+        {generatedQuestions.length > 0 && (
+          <div className="hidden lg:block w-72">
             <div className="border rounded-lg p-4 bg-white shadow-sm h-full sticky top-4">
               <h4 className="font-medium text-green-800 mb-3">
                 Generated Questions
@@ -278,32 +373,9 @@ const AIQnA = () => {
                 ))}
               </ul>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
-
-      {/* Generated Questions - Fallback for mobile when not in sidebar */}
-      {generatedQuestions.length > 0 && (
-        <div className="lg:hidden border rounded-lg p-4 bg-white shadow-sm">
-          <h4 className="font-medium text-green-800 mb-3">
-            Generated Questions
-          </h4>
-          <ul className="space-y-2">
-            {generatedQuestions.map((q, i) => (
-              <li
-                key={i}
-                className="p-3 bg-green-50 rounded border border-green-100 cursor-pointer hover:bg-green-100 transition-colors"
-                onClick={() => setQuestion(q)}
-              >
-                <div className="flex items-start">
-                  <FiFile className="mt-1 mr-2 flex-shrink-0 text-green-600" />
-                  <span className="whitespace-pre-wrap">{q}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </div>
   );
 };

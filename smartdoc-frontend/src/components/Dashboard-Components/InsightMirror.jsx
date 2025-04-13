@@ -113,7 +113,7 @@ const InsightMirror = () => {
 
       {isLoading && progress < 100 && (
         <div className="progress-container">
-          <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+          {/* <div className="progress-bar" style={{ width: `${progress}%` }}></div> */}
           <div className="progress-text">
             Analyzing document... {Math.round(progress)}%
           </div>

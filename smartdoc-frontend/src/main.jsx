@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { Auth0Provider } from "@auth0/auth0-react";
 import "./index.css";
 import App from "./App.jsx";
+import { ThemeProvider } from "./context/ThemeContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -15,7 +16,9 @@ createRoot(document.getElementById("root")).render(
       cacheLocation="localstorage" // to persist login for returning users
       useRefreshTokens={true}
     >
-      <App />
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
     </Auth0Provider>
   </StrictMode>
 );

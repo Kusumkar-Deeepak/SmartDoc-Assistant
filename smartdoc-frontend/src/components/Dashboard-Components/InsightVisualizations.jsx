@@ -89,8 +89,8 @@ const InsightVisualizations = ({ insights }) => {
         </p>
       </div>
 
-      {/* Key Metrics Row */}
-      <div className="metrics-row">
+      {/* Key Metrics Row - Now responsive grid */}
+      <div className="metrics-grid">
         <div className="metric-card">
           <h4>Quality Score</h4>
           <div className="metric-value">
@@ -115,31 +115,42 @@ const InsightVisualizations = ({ insights }) => {
         </div>
       </div>
 
-      {/* Charts Row */}
-      <div className="charts-row">
-        <div className="chart-container">
+      {/* Charts Row - Now stacked on mobile */}
+      <div className="charts-container">
+        <div className="chart-wrapper">
           <h4>📊 Document Quality Metrics</h4>
-          <Bar
-            data={qualityData}
-            options={{
-              responsive: true,
-              scales: {
-                y: { beginAtZero: true, max: 100 },
-              },
-            }}
-          />
+          <div className="chart-responsive-container">
+            <Bar
+              data={qualityData}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  y: { beginAtZero: true, max: 100 },
+                },
+              }}
+            />
+          </div>
         </div>
-        <div className="chart-container">
+        <div className="chart-wrapper">
           <h4>🧠 Sentiment Analysis</h4>
-          <Doughnut data={sentimentData} options={{ responsive: true }} />
+          <div className="chart-responsive-container">
+            <Doughnut
+              data={sentimentData}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+              }}
+            />
+          </div>
         </div>
       </div>
 
       {/* Content Analysis */}
       <div className="analysis-section">
         <h3>🔍 Content Analysis</h3>
-        <div className="two-column-grid">
-          <div>
+        <div className="analysis-grid">
+          <div className="analysis-column">
             <h4>✅ Strengths</h4>
             <ul className="styled-list">
               {insights.contentAnalysis.strengths.map((item, i) => (
@@ -149,7 +160,7 @@ const InsightVisualizations = ({ insights }) => {
               ))}
             </ul>
           </div>
-          <div>
+          <div className="analysis-column">
             <h4>⚠️ Weaknesses</h4>
             <ul className="styled-list">
               {insights.contentAnalysis.weaknesses.map((item, i) => (
@@ -165,7 +176,7 @@ const InsightVisualizations = ({ insights }) => {
       {/* Key Entities */}
       <div className="entities-section">
         <h3>🔑 Key Entities & Terms</h3>
-        <div className="entity-tags">
+        <div className="entity-tags-container">
           {insights.entities.keyTerms.map((term, i) => (
             <span key={`term-${i}`} className="entity-tag">
               {term}
@@ -177,7 +188,7 @@ const InsightVisualizations = ({ insights }) => {
       {/* Recommendations */}
       <div className="recommendations-section">
         <h3>💡 Professional Recommendations</h3>
-        <div className="recommendation-cards">
+        <div className="recommendations-grid">
           <div className="recommendation-card">
             <h4>Content Improvements</h4>
             <ul className="styled-list">

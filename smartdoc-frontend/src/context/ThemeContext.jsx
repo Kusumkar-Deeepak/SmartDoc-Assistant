@@ -1,23 +1,23 @@
 // src/context/ThemeContext.jsx
-import { createContext, useState, useContext, useEffect } from 'react';
+import { createContext, useState, useContext, useEffect } from "react";
 
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
   const [darkMode, setDarkMode] = useState(() => {
-    // Check localStorage or system preference
-    return localStorage.getItem('darkMode') === 'true' || 
-           window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const local = localStorage.getItem("darkMode");
+    if (local !== null) return local === "true";
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
   });
 
   useEffect(() => {
+    const root = document.documentElement;
     if (darkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('darkMode', 'true');
+      root.classList.add("dark");
     } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('darkMode', 'false');
+      root.classList.remove("dark");
     }
+    localStorage.setItem("darkMode", darkMode.toString());
   }, [darkMode]);
 
   return (

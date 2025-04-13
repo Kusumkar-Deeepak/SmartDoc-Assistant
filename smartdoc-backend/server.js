@@ -1,11 +1,15 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-// import extractTextRoutes from "./routes/extractText.routes.js";
+import path from "path";
+import { fileURLToPath } from "url";
+import multer from "multer";
 import connectDB from "./config/db.js";
 import summarizeRoutes from "./routes/summarizeRoutes.js";
-import qnaRoutes from "./routes/qna_routes.js"
-import insightMirrorRouter from './routes/insightMirrorRoutes.js';
+import qnaRoutes from "./routes/qna_routes.js";
+import insightMirrorRouter from "./routes/insightMirrorRoutes.js";
+import extractorRoutes from "./routes/extractorRoutes.js";
+import docRoutes from "./routes/manageDocRoutes.js";
 
 dotenv.config();
 
@@ -19,6 +23,9 @@ app.use(
   })
 );
 app.use(express.json());
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Connect to database
 connectDB();
@@ -26,8 +33,28 @@ connectDB();
 // Routes
 app.use("/api/summarize", summarizeRoutes);
 app.use("/api/ai-qna", qnaRoutes);
-app.use('/api/insight-mirror', insightMirrorRouter);
+app.use("/api/insight-mirror", insightMirrorRouter);
+app.use("/api/ai", extractorRoutes);
+app.use("/api/documents", docRoutes);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    // A Multer error occurred when uploading
+    return res.status(400).json({
+      error: err.message || "File upload error",
+    });
+  } else if (err) {
+    // Unknown error
+    return res.status(500).json({
+      error: err.message || "Internal server error",
+    });
+  }
+  next();
+});
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, "0.0.0.0", () =>
+  console.log(`Server running on port ${PORT}`)
+);

@@ -4,6 +4,7 @@ import {
   FiZoomOut,
   FiSearch,
   FiCopy,
+  FiMessageSquare,
 } from "react-icons/fi";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
@@ -16,6 +17,7 @@ import {
 import { toast } from "react-toastify";
 import hljs from "highlight.js";
 import "highlight.js/styles/github.css";
+import AIExplanation from "./AIExplanation";
 
 const UploadExtract = () => {
   const [extractedText, setExtractedText] = useState("");
@@ -31,6 +33,8 @@ const UploadExtract = () => {
   const [textChunks, setTextChunks] = useState([]);
   const CHUNK_SIZE = 5000; // Characters per page
   const [isTextCopied, setIsTextCopied] = useState(false);
+  const [selectedText, setSelectedText] = useState("");
+  const [showExplanation, setShowExplanation] = useState(false);
 
   // Format extracted text with basic structure
   const formatText = (text) => {
@@ -61,6 +65,23 @@ const UploadExtract = () => {
 
     return formattedLines.join("\n");
   };
+
+  const handleTextSelection = useCallback(() => {
+    const selection = window.getSelection();
+    if (selection.toString().trim()) {
+      setSelectedText(selection.toString().trim());
+    }
+  }, []);
+
+  useEffect(() => {
+    const container = textContainerRef.current;
+    if (container) {
+      container.addEventListener("mouseup", handleTextSelection);
+      return () => {
+        container.removeEventListener("mouseup", handleTextSelection);
+      };
+    }
+  }, [handleTextSelection]);
 
   // Split text into manageable chunks
   useEffect(() => {
@@ -532,6 +553,42 @@ const UploadExtract = () => {
               </p>
             </div>
           )}
+        </div>
+      )}
+      <button
+        onClick={() => setShowExplanation(!showExplanation)}
+        className={`p-2 rounded-md flex items-center gap-1 transition-all ${
+          showExplanation
+            ? "bg-blue-100 text-blue-600 ring-2 ring-blue-300"
+            : "hover:bg-gray-100 text-gray-600"
+        } ${
+          isProcessing || !extractedText ? "opacity-50 cursor-not-allowed" : ""
+        }`}
+        title={
+          isProcessing
+            ? "Please wait while processing completes"
+            : !extractedText
+            ? "Upload or extract text first"
+            : showExplanation
+            ? "Close AI Assistant"
+            : "Open AI Assistant"
+        }
+        disabled={isProcessing || !extractedText}
+      >
+        <FiMessageSquare className="w-5 h-5" />
+        <span className="hidden sm:inline text-sm font-medium">
+          {showExplanation ? "Close AI" : "AI Assistant"}
+        </span>
+      </button>
+
+      {showExplanation && (
+        <div className="mt-4 animate-fade-in">
+          <AIExplanation
+            selectedText={selectedText}
+            fullText={extractedText}
+            onClose={() => setShowExplanation(false)}
+            disabled={isProcessing}
+          />
         </div>
       )}
     </div>
