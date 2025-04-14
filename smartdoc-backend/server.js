@@ -4,8 +4,6 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
-import compression from "compression";
-import helmet from "helmet";
 import connectDB from "./config/db.js";
 import summarizeRoutes from "./routes/summarizeRoutes.js";
 import qnaRoutes from "./routes/qna_routes.js";
@@ -24,8 +22,6 @@ app.use(
     credentials: true,
   })
 );
-app.use(compression()); // Gzip compression
-app.use(helmet());
 app.use(express.json());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,13 +29,6 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Connect to database
 connectDB();
-
-app.use(
-  helmet({
-    contentSecurityPolicy: false,
-    frameguard: false,
-  })
-);
 
 // Uptime Robot Ping
 app.get("/", (req, res) => {
