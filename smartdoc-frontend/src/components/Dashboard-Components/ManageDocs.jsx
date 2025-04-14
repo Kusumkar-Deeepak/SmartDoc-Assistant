@@ -17,7 +17,7 @@ const DocumentViewerModal = ({ show, doc, onClose, password = "" }) => {
   if (!show || !doc) return null;
 
   const getDocumentUrl = () => {
-    const baseUrl = `${API.defaults.baseURL}api/documents/${
+    const baseUrl = `${import.meta.env.VITE_API_BASE_URL}/api/documents/${
       doc._id
     }/view?email=${encodeURIComponent(doc.userId)}`;
     return password
