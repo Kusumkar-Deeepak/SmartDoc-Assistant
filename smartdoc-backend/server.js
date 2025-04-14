@@ -37,13 +37,9 @@ connectDB();
 app.use(
   helmet({
     contentSecurityPolicy: false,
-    frameguard: {
-      action: "allow-from",
-      domain: "https://smartdoc-ai.onrender.com",
-    },
+    frameguard: false,
   })
 );
-
 
 // Uptime Robot Ping
 app.get("/", (req, res) => {
