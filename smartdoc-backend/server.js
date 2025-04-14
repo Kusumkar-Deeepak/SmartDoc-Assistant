@@ -34,6 +34,17 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Connect to database
 connectDB();
 
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    frameguard: {
+      action: "allow-from",
+      domain: "https://smartdoc-ai.onrender.com",
+    },
+  })
+);
+
+
 // Uptime Robot Ping
 app.get("/", (req, res) => {
   res.send("Server is alive and being monitored!");
