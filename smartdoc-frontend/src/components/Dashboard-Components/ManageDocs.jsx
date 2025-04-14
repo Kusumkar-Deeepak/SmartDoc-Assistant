@@ -534,7 +534,7 @@ const ManageDocs = () => {
           onVerified: (password) => {
             window.open(
               `${
-                API.defaults.baseURL
+                import.meta.env.VITE_API_BASE_URL
               }api/documents/${id}/download?email=${encodeURIComponent(
                 user.email
               )}&password=${encodeURIComponent(password)}`,
@@ -546,7 +546,7 @@ const ManageDocs = () => {
       }
       window.open(
         `${
-          API.defaults.baseURL
+          import.meta.env.VITE_API_BASE_URL
         }api/documents/${id}/download?email=${encodeURIComponent(user.email)}`,
         "_blank"
       );
