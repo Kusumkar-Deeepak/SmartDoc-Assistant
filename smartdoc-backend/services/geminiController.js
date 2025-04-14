@@ -3,7 +3,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 export const answerQuestion = async (documentText, question) => {
@@ -51,7 +50,6 @@ export const generateQuestions = async (documentText, numQuestions) => {
     const response = await result.response;
     const text = response.text();
 
-    // Parse the response into an array of questions
     return text
       .split("\n")
       .map((q) => q.replace(/^\d+\.\s*/, "").trim())

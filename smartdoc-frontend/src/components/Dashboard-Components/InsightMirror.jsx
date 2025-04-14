@@ -120,6 +120,12 @@ const InsightMirror = () => {
         </div>
       )}
 
+      {error && (
+        <div className="mb-6 p-3 bg-red-50 text-red-700 rounded-lg border border-red-200">
+          {error}
+        </div>
+      )}
+
       {insights && (
         <InsightVisualizations
           insights={insights}

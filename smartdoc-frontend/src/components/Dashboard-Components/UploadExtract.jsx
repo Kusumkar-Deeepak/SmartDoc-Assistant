@@ -35,6 +35,7 @@ const UploadExtract = () => {
   const [isTextCopied, setIsTextCopied] = useState(false);
   const [selectedText, setSelectedText] = useState("");
   const [showExplanation, setShowExplanation] = useState(false);
+  const [error, setError] = useState("");
 
   // Format extracted text with basic structure
   const formatText = (text) => {
@@ -183,6 +184,9 @@ const UploadExtract = () => {
   const processFile = async (file) => {
     if (!file) return;
 
+    // Clear any previous error
+    setError("");
+
     // Validate file type and size (10MB limit)
     const validTypes = [
       "application/pdf",
@@ -233,6 +237,9 @@ const UploadExtract = () => {
       return true;
     } catch (error) {
       console.error("Extraction error:", error);
+      setError(
+        `${file.name} is damaged or cannot be opened. Please try a different file.`
+      );
       toast.error(error.message || "Failed to extract text");
       return false;
     } finally {
@@ -589,6 +596,12 @@ const UploadExtract = () => {
             onClose={() => setShowExplanation(false)}
             disabled={isProcessing}
           />
+        </div>
+      )}
+
+      {error && (
+        <div className="mb-6 p-3 bg-red-50 text-red-700 rounded-lg border border-red-200">
+          {error}
         </div>
       )}
     </div>

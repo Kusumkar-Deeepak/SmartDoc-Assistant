@@ -63,7 +63,7 @@ const Summarize = () => {
         } catch (error) {
           console.error("Error extracting text:", error);
           setError(
-            "Failed to extract text from file. Please try another file."
+            `${file.name} is damaged or cannot be opened. Please try a different file.`
           );
         }
       }

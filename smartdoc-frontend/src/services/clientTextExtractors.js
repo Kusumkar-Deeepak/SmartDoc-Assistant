@@ -8,7 +8,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.j
 export const extractTextFromPDF = async (file) => {
   try {
     const arrayBuffer = await file.arrayBuffer();
-    const loadingTask = pdfjsLib.getDocument(arrayBuffer);
+    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+
     const pdfDocument = await loadingTask.promise;
     let fullText = "";
 
@@ -18,9 +19,20 @@ export const extractTextFromPDF = async (file) => {
       fullText += textContent.items.map((item) => item.str).join(" ") + "\n";
     }
 
+    if (!fullText.trim()) {
+      throw new Error(
+        "No extractable text found. This might be a scanned image PDF."
+      );
+    }
+
     return fullText;
   } catch (error) {
     console.error("PDF extraction error:", error);
+
+    if (error.name === "InvalidPDFException") {
+      throw new Error("The PDF structure is invalid or the file is corrupted.");
+    }
+
     throw new Error("Failed to extract text from PDF");
   }
 };

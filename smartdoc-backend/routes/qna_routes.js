@@ -1,9 +1,14 @@
-import express from 'express';
+import express from "express";
 const router = express.Router();
-import { answerQuestionController, generateQuestionsController } from '../controllers/qna_controller.js';
+import {
+  answerQuestionController,
+  generateQuestionsController,
+} from "../controllers/qna_controller.js";
 
-router.post('/ask-question', answerQuestionController);
+// POST /api/ai-qna/ask-question
+router.post("/ask-question", answerQuestionController);
 
-router.post('/generate-questions', generateQuestionsController);
+// POST /api/ai-qna/generate-questions
+router.post("/generate-questions", generateQuestionsController);
 
 export default router;

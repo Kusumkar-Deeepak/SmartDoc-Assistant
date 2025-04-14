@@ -9,7 +9,7 @@ const DocumentSchema = new mongoose.Schema({
   size: { type: Number, required: true },
   path: { type: String, required: true },
   protected: { type: Boolean, default: false },
-  password: { type: String, select: false }, // Password is hashed and not returned by default
+  password: { type: String }, 
   tags: { type: [String], default: [] },
   createdAt: { type: Date, default: Date.now },
 });

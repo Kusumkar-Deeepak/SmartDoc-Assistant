@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import API from "../../services/Api";
 import { FiCopy, FiLoader } from "react-icons/fi";
 import { toast } from "react-toastify";
@@ -6,87 +6,81 @@ import { toast } from "react-toastify";
 const AIExplanation = ({ selectedText, fullText }) => {
   const [output, setOutput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [mode, setMode] = useState("selection");
+  const [mode, setMode] = useState(selectedText ? "selection" : "document");
   const [promptType, setPromptType] = useState("EXPLAIN_SELECTION");
   const [customPrompt, setCustomPrompt] = useState("");
+  const [error, setError] = useState("");
+
+  // Track if we have valid content
+  const hasSelectedText = selectedText && selectedText.trim().length >= 3;
+  const hasFullText = fullText && fullText.trim().length >= 10;
+
+  // Update mode when selectedText changes
+  useEffect(() => {
+    if (hasSelectedText) {
+      setMode("selection");
+    } else if (hasFullText) {
+      setMode("document");
+    }
+  }, [selectedText, fullText]);
 
   const commonPrompts = [
     {
       type: "EXPLAIN_SELECTION",
       label: "Explain this in simple terms",
-      systemInstruction: `You are a helpful AI assistant that explains text clearly and concisely. Follow these rules:
-1. If the text is empty or undefined, say "Please select some text to analyze"
-2. Keep explanations to 1-2 short paragraphs maximum
-3. Use simple language (8th grade level)
-4. Provide examples when helpful
-5. Format with clear paragraph breaks`,
     },
     {
       type: "LEGAL_TRANSLATION",
       label: "Convert legal text to plain language",
-      systemInstruction: `You are a legal expert that translates complex legal terms to everyday language:
-1. If text is empty, say "No legal text found to analyze"
-2. Replace legalese with simple equivalents
-3. Explain implications clearly
-4. Maintain legal accuracy
-5. Use bullet points for key clauses`,
     },
     {
       type: "SCIENTIFIC_EXPLANATION",
       label: "Explain scientific terms",
-      systemInstruction: `You are a science communicator that explains technical concepts:
-1. If text is empty, say "No scientific content found"
-2. Define all technical terms
-3. Use relatable analogies
-4. Explain significance/context
-5. Note real-world applications`,
     },
     {
       type: "SUMMARY",
       label: "Summarize key points",
-      systemInstruction: `Create a concise summary of the provided content:
-1. If text is empty, say "Please provide content to summarize"
-2. Identify 3-5 main points
-3. Use bullet points
-4. Keep under 100 words
-5. Maintain original meaning`,
     },
   ];
 
   const handleExplain = async () => {
-    const textToAnalyze = mode === "document" ? fullText : selectedText;
-
-    if (!textToAnalyze?.trim()) {
-      setOutput("Please select some text or upload a document to analyze");
-      return;
-    }
-
-    setIsLoading(true);
-    setOutput("");
-
     try {
-      const endpoint = "/api/ai/explain";
-      const selectedPrompt = commonPrompts.find((p) => p.type === promptType);
+      setIsLoading(true);
+      setError("");
+      setOutput("");
 
-      const response = await API.post(endpoint, {
-        text: textToAnalyze,
+      const content = mode === "selection" ? selectedText : fullText;
+
+      if (
+        !content ||
+        (mode === "selection" && !hasSelectedText) ||
+        (mode === "document" && !hasFullText)
+      ) {
+        throw new Error(
+          mode === "selection"
+            ? "Please select at least 3 characters of text"
+            : "Document content is too short"
+        );
+      }
+
+      const response = await API.post("/api/ai/explain", {
+        [mode === "selection" ? "text" : "fullText"]: content,
         promptType,
-        customPrompt: promptType === "custom" ? customPrompt : null,
-        systemInstruction:
-          selectedPrompt?.systemInstruction ||
-          `Explain the provided text clearly and concisely. If the text appears to be an error or empty, 
-          respond with "Please provide valid content to analyze".`,
+        ...(customPrompt && { customPrompt }),
       });
 
-      if (response.data?.explanation) {
-        setOutput(response.data.explanation);
-      } else {
-        throw new Error("Empty response from AI");
-      }
-    } catch (error) {
-      console.error("Explanation error:", error);
-      setOutput("Failed to generate explanation. Please try again.");
-      toast.error(error.response?.data?.error || "AI service unavailable");
+      setOutput(
+        response.data.explanation ||
+          response.data.analysis ||
+          "No response received"
+      );
+    } catch (err) {
+      console.error("Explanation error:", err);
+      setError(
+        err.response?.data?.error ||
+          err.message ||
+          "Failed to get explanation. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -107,28 +101,33 @@ const AIExplanation = ({ selectedText, fullText }) => {
         </h3>
         <div className="flex gap-2">
           <button
-            onClick={() => setMode("selection")}
-            disabled={!selectedText}
+            onClick={() => {
+              setMode("selection");
+              if (hasSelectedText) handleExplain();
+            }}
+            disabled={!hasSelectedText}
             className={`px-3 py-1 text-sm rounded-full ${
-              mode === "selection"
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200" + (!selectedText ? " opacity-50" : "")
-            }`}
-            title={!selectedText ? "Select text first" : ""}
+              mode === "selection" ? "bg-blue-500 text-white" : "bg-gray-200"
+            } ${!hasSelectedText ? " opacity-50 cursor-not-allowed" : ""}`}
+            title={!hasSelectedText ? "Select at least 3 characters first" : ""}
           >
             Selected Text
           </button>
           <button
-            onClick={() => setMode("document")}
+            onClick={() => {
+              setMode("document");
+              if (hasFullText) handleExplain();
+            }}
+            disabled={!hasFullText}
             className={`px-3 py-1 text-sm rounded-full ${
               mode === "document" ? "bg-blue-500 text-white" : "bg-gray-200"
-            }`}
+            } ${!hasFullText ? " opacity-50 cursor-not-allowed" : ""}`}
+            title={!hasFullText ? "Document content too short" : ""}
           >
             Full Document
           </button>
         </div>
       </div>
-
       <div className="mb-4">
         <h4 className="text-md font-medium mb-2 text-gray-700">
           Analysis Type
@@ -139,9 +138,13 @@ const AIExplanation = ({ selectedText, fullText }) => {
               key={prompt.type}
               onClick={() => {
                 setPromptType(prompt.type);
-                if (prompt.type !== "custom") handleExplain();
+                setCustomPrompt("");
+                handleExplain();
               }}
-              disabled={isLoading}
+              disabled={
+                isLoading ||
+                !(mode === "selection" ? hasSelectedText : hasFullText)
+              }
               className={`p-2 text-sm rounded ${
                 promptType === prompt.type
                   ? "bg-blue-100 border-2 border-blue-300"
@@ -153,31 +156,51 @@ const AIExplanation = ({ selectedText, fullText }) => {
           ))}
         </div>
       </div>
-
-      {promptType === "custom" && (
-        <div className="mb-4">
-          <h4 className="text-md font-medium mb-2 text-gray-700">
-            Custom Question
-          </h4>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={customPrompt}
-              onChange={(e) => setCustomPrompt(e.target.value)}
-              placeholder="Ask anything about the text..."
-              className="flex-1 px-3 py-2 border rounded"
-            />
-            <button
-              onClick={handleExplain}
-              disabled={isLoading || !customPrompt.trim()}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-            >
-              Ask
-            </button>
-          </div>
+      <div className="mb-4">
+        <h4 className="text-md font-medium mb-2 text-gray-700">
+          {promptType === "custom"
+            ? "Custom Question"
+            : "Or Ask Custom Question"}
+        </h4>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={customPrompt}
+            onChange={(e) => {
+              setCustomPrompt(e.target.value);
+              setPromptType("custom");
+            }}
+            placeholder="Ask anything about the text..."
+            className="flex-1 px-3 py-2 border rounded"
+          />
+          <button
+            onClick={handleExplain}
+            disabled={
+              isLoading ||
+              !customPrompt.trim() ||
+              !(mode === "selection" ? hasSelectedText : hasFullText)
+            }
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+          >
+            Ask
+          </button>
+        </div>
+      </div>
+      {error && (
+        <div className="p-3 bg-red-50 text-red-700 rounded-lg border border-red-200">
+          {error.includes("Failed") ? (
+            <>
+              <p>Failed to process your request:</p>
+              <p className="text-sm mt-1">{error}</p>
+              <p className="text-sm mt-1">
+                Please try a shorter text selection.
+              </p>
+            </>
+          ) : (
+            error
+          )}
         </div>
       )}
-
       <div className="bg-white border rounded overflow-hidden">
         <div className="bg-gray-100 px-4 py-2 border-b flex justify-between items-center">
           <h4 className="font-medium text-gray-700">AI Analysis Result</h4>

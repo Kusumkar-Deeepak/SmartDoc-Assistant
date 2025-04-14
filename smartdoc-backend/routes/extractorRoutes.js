@@ -1,12 +1,9 @@
+// routes/extractorRoutes.js
 import express from "express";
-import {
-  explainText,
-  explainDocument,
-} from "../controllers/extractorController.js";
+import { explainContent } from "../controllers/extractorController.js";
 
 const router = express.Router();
 
-router.post("/explain", explainText);
-router.post("/analyze-document", explainDocument);
+router.post("/explain", explainContent);
 
 export default router;

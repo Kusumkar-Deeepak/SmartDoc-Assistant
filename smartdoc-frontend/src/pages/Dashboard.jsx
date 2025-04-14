@@ -85,6 +85,22 @@ const Dashboard = () => {
     );
   };
 
+  const getUserPicture = () => {
+    if (user?.picture) return user.picture;
+    if (user?.email) {
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        extractNameFromEmail(user.email)
+      )}&background=6366f1&color=fff`;
+    }
+    return `https://ui-avatars.com/api/?name=User&background=6366f1&color=fff`;
+  };
+
+  const getUserName = () => {
+    if (user?.name && !user.name.includes("@")) return user.name;
+    if (user?.email) return extractNameFromEmail(user.email);
+    return "User";
+  };
+
   function howToUse() {
     navigate("/how-to-use");
   }
@@ -127,24 +143,18 @@ const Dashboard = () => {
         <div className="p-4">
           <div className="flex items-center space-x-3 p-3 rounded-lg bg-indigo-700">
             <img
-              src={
-                user.picture ||
-                user?.picture ||
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                  user?.name?.includes("@")
-                    ? extractNameFromEmail(user?.email)
-                    : user?.name || extractNameFromEmail(user?.email)
-                )}&background=6366f1&color=fff`
-              }
+              src={getUserPicture()}
               alt="User"
               className="w-10 h-10 rounded-full"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                  getUserName()
+                )}&background=6366f1&color=fff`;
+              }}
             />
             <div>
-              <p className="font-medium">
-                {user?.name?.includes("@")
-                  ? extractNameFromEmail(user?.email)
-                  : user?.name || extractNameFromEmail(user?.email)}
-              </p>
+              <p className="font-medium">{getUserName()}</p>
               <p className="text-[11px] text-indigo-200">{user?.email}</p>
             </div>
           </div>

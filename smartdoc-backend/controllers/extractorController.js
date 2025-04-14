@@ -1,27 +1,47 @@
-import { explainContent, analyzeDocument } from '../services/geminiExplain.js';
+// controllers/extractorController.js
+import {
+  explainSelection,
+  analyzeDocument,
+} from "../services/geminiExplain.js";
 
-export const explainText = async (req, res) => {
+export const explainContent = async (req, res) => {
   try {
-    const { text, promptType, customPrompt } = req.body;
-    
-    const explanation = await explainContent({ text, promptType, customPrompt });
-    res.json({ explanation });
-    
-  } catch (error) {
-    console.error('AI Explanation Error:', error);
-    res.status(500).json({ error: error.message });
-  }
-};
+    const { text, fullText, promptType, customPrompt } = req.body;
 
-export const explainDocument = async (req, res) => {
-  try {
-    const { fullText } = req.body;
-    
-    const analysis = await analyzeDocument(fullText);
-    res.json({ analysis });
-    
+    if (!text && !fullText) {
+      return res.status(400).json({
+        error: "Please provide either selected text or full document content",
+      });
+    }
+
+    if (text) {
+      if (text.trim().length < 3) {
+        return res.status(400).json({
+          error: "Selected text must be at least 3 characters long",
+        });
+      }
+      const explanation = await explainSelection({
+        text,
+        promptType: promptType || "EXPLAIN_SELECTION",
+        customPrompt,
+      });
+      return res.json({ explanation });
+    }
+
+    if (fullText) {
+      if (fullText.trim().length < 10) {
+        return res.status(400).json({
+          error: "Document content too short (minimum 10 characters required)",
+        });
+      }
+      const analysis = await analyzeDocument(fullText);
+      return res.json({ analysis });
+    }
   } catch (error) {
-    console.error('Document Analysis Error:', error);
-    res.status(500).json({ error: error.message });
+    console.error("AI Processing Error:", error);
+    res.status(500).json({
+      error: "Failed to process content",
+      details: error.message,
+    });
   }
 };

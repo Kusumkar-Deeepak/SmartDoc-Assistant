@@ -24,16 +24,24 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  const filetypes = /pdf|docx|jpg|jpeg|png/;
-  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = filetypes.test(file.mimetype);
+  const allowedExtensions = /\.(pdf|docx|jpg|jpeg|png)$/i;
+  const allowedMimes = [
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+    "application/msword", // .doc
+    "image/jpeg",
+    "image/png",
+  ];
 
-  if (extname && mimetype) {
-    return cb(null, true);
+  const extValid = allowedExtensions.test(file.originalname.toLowerCase());
+  const mimeValid = allowedMimes.includes(file.mimetype);
+
+  if (extValid && mimeValid) {
+    cb(null, true);
   } else {
     cb(
       new Error(
-        `File type not allowed: ${file.originalname}. Only PDF, DOCX, JPG, JPEG, PNG files are allowed`
+        `Unsupported file: ${file.originalname}. Allowed: PDF, DOCX, JPG, JPEG, PNG`
       )
     );
   }

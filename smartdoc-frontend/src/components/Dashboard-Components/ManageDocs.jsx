@@ -11,24 +11,29 @@ import {
 } from "react-icons/fi";
 import { useDropzone } from "react-dropzone";
 import API from "../../services/Api";
+import Loading from "../common/Loading";
 
-const DocumentViewerModal = ({ show, doc, onClose }) => {
+const DocumentViewerModal = ({ show, doc, onClose, password = "" }) => {
   if (!show || !doc) return null;
 
   const getDocumentUrl = () => {
-    return `/api/documents/${doc._id}/view?email=${encodeURIComponent(
-      doc.userId
-    )}`;
+    const baseUrl = `${API.defaults.baseURL}api/documents/${
+      doc._id
+    }/view?email=${encodeURIComponent(doc.userId)}`;
+    return password
+      ? `${baseUrl}&password=${encodeURIComponent(password)}`
+      : baseUrl;
   };
 
   const renderContent = () => {
     if (doc.mimetype.includes("pdf")) {
       return (
-        <embed
+        <iframe
           src={getDocumentUrl()}
           type="application/pdf"
           width="100%"
           height="500px"
+          title={doc.originalname}
         />
       );
     } else if (doc.mimetype.includes("image")) {
@@ -103,9 +108,7 @@ const DocumentTable = ({
   onPageChange,
 }) => {
   const handleDeleteClick = (id) => {
-    if (window.confirm("Are you sure you want to delete this document?")) {
-      onDelete(id);
-    }
+    onDelete(id);
   };
   return (
     <div className="overflow-x-auto">
@@ -293,16 +296,27 @@ const DocumentTable = ({
 };
 
 const FileUpload = ({ onUpload }) => {
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: {
-      "application/pdf": [".pdf"],
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        [".docx"],
-      "image/*": [".jpg", ".jpeg", ".png"],
-    },
-    maxFiles: 5,
-    onDrop: (acceptedFiles) => onUpload(acceptedFiles),
-  });
+  const { getRootProps, getInputProps, isDragActive, fileRejections } =
+    useDropzone({
+      accept: {
+        "application/pdf": [".pdf"],
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+          [".docx"],
+        "image/jpeg": [".jpg", ".jpeg"],
+        "image/png": [".png"],
+      },
+      maxFiles: 5,
+      onDrop: (acceptedFiles) => onUpload(acceptedFiles),
+    });
+
+  useEffect(() => {
+    if (fileRejections.length > 0) {
+      const rejectedNames = fileRejections.map((f) => f.file.name).join(", ");
+      alert(
+        `Unsupported file(s): ${rejectedNames}. Allowed: PDF, DOCX, JPG, PNG`
+      );
+    }
+  }, [fileRejections]);
 
   return (
     <div
@@ -328,6 +342,7 @@ const FileUpload = ({ onUpload }) => {
 const PasswordModal = ({ show, doc, onClose, action, onVerified }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async () => {
     if (!password) {
@@ -335,20 +350,24 @@ const PasswordModal = ({ show, doc, onClose, action, onVerified }) => {
       return;
     }
 
+    setIsLoading(true);
     try {
-      const response = await API.post(`/api/documents/${doc._id}/verify`, {
+      const response = await API.post(`api/documents/${doc._id}/verify`, {
         email: doc.userId,
         password,
       });
 
       if (response.data.valid) {
-        onVerified(); // Call the success handler
+        onVerified(password);
         onClose();
       } else {
         setError("Incorrect password");
       }
     } catch (err) {
-      setError("Verification failed");
+      setError(err.response?.data?.error || "Verification failed");
+    } finally {
+      setPassword("");
+      setIsLoading(false);
     }
   };
 
@@ -376,14 +395,16 @@ const PasswordModal = ({ show, doc, onClose, action, onVerified }) => {
           <button
             onClick={onClose}
             className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+            disabled={isLoading}
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+            disabled={isLoading}
           >
-            Submit
+            {isLoading ? "Verifying..." : "Submit"}
           </button>
         </div>
       </div>
@@ -399,10 +420,12 @@ const ManageDocs = () => {
   const [viewerModal, setViewerModal] = useState({
     show: false,
     doc: null,
+    password: "",
   });
   const [passwordModal, setPasswordModal] = useState({
     show: false,
     doc: null,
+    action: "",
   });
   const [protectModal, setProtectModal] = useState({
     show: false,
@@ -429,12 +452,12 @@ const ManageDocs = () => {
           ))
     );
     setFilteredDocuments(filtered);
-    setCurrentPage(1); // Reset to first page when search changes
+    setCurrentPage(1);
   }, [searchTerm, documents]);
 
   const fetchDocuments = async () => {
     try {
-      const response = await API.get("/api/documents", {
+      const response = await API.get("api/documents", {
         params: { email: user.email },
       });
       setDocuments(response.data);
@@ -446,7 +469,6 @@ const ManageDocs = () => {
     }
   };
 
-  // Get current documents for pagination
   const indexOfLastDoc = currentPage * docsPerPage;
   const indexOfFirstDoc = indexOfLastDoc - docsPerPage;
   const currentDocs = filteredDocuments.slice(indexOfFirstDoc, indexOfLastDoc);
@@ -456,28 +478,23 @@ const ManageDocs = () => {
     try {
       const doc = documents.find((d) => d._id === id);
 
+      const deleteDocument = async () => {
+        await API.delete(`api/documents/${id}`, {
+          params: { email: user.email },
+        });
+        setDocuments(documents.filter((doc) => doc._id !== id));
+      };
+
       if (doc.protected) {
         setPasswordModal({
           show: true,
           doc,
           action: "delete",
-          onVerified: async () => {
-            if (
-              window.confirm("Are you sure you want to delete this document?")
-            ) {
-              await API.delete(`/api/documents/${id}`, {
-                params: { email: user.email },
-              });
-              setDocuments(documents.filter((doc) => doc._id !== id));
-            }
-          },
+          onVerified: deleteDocument,
         });
       } else {
         if (window.confirm("Are you sure you want to delete this document?")) {
-          await API.delete(`/api/documents/${id}`, {
-            params: { email: user.email },
-          });
-          setDocuments(documents.filter((doc) => doc._id !== id));
+          await deleteDocument();
         }
       }
     } catch (error) {
@@ -493,13 +510,13 @@ const ManageDocs = () => {
           show: true,
           doc,
           action: "view",
-          onVerified: () => {
-            setViewerModal({ show: true, doc });
+          onVerified: (password) => {
+            setViewerModal({ show: true, doc, password });
           },
         });
         return;
       }
-      setViewerModal({ show: true, doc });
+      setViewerModal({ show: true, doc, password: "" });
     } catch (error) {
       console.error("View error:", error);
       alert("Failed to open document");
@@ -514,29 +531,25 @@ const ManageDocs = () => {
           show: true,
           doc,
           action: "download",
-          onVerified: () => {
-            // Create a hidden anchor tag to trigger download
-            const link = document.createElement("a");
-            link.href = `/api/documents/${id}/download?email=${encodeURIComponent(
-              user.email
-            )}`;
-            link.download = doc.originalname;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+          onVerified: (password) => {
+            window.open(
+              `${
+                API.defaults.baseURL
+              }api/documents/${id}/download?email=${encodeURIComponent(
+                user.email
+              )}&password=${encodeURIComponent(password)}`,
+              "_blank"
+            );
           },
         });
         return;
       }
-      // Direct download for unprotected files
-      const link = document.createElement("a");
-      link.href = `/api/documents/${id}/download?email=${encodeURIComponent(
-        user.email
-      )}`;
-      link.download = doc.originalname;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      window.open(
+        `${
+          API.defaults.baseURL
+        }api/documents/${id}/download?email=${encodeURIComponent(user.email)}`,
+        "_blank"
+      );
     } catch (error) {
       console.error("Download error:", error);
       alert("Failed to download document");
@@ -561,7 +574,7 @@ const ManageDocs = () => {
           doc,
           action: "unprotect",
           onVerified: async () => {
-            const response = await API.patch(`/api/documents/${id}/protect`, {
+            const response = await API.patch(`api/documents/${id}/protect`, {
               email: user.email,
               protect: false,
             });
@@ -583,7 +596,7 @@ const ManageDocs = () => {
   const handleSetPassword = async (password) => {
     try {
       const response = await API.patch(
-        `/api/documents/${protectModal.docId}/protect`,
+        `api/documents/${protectModal.docId}/protect`,
         {
           email: user.email,
           protect: protectModal.protect,
@@ -612,7 +625,7 @@ const ManageDocs = () => {
       formData.append("email", user.email);
 
       // Get AI-generated tags
-      const tagsResponse = await API.post("/api/documents/tag-documents", {
+      const tagsResponse = await API.post("api/documents/tag-documents", {
         filenames: files.map((f) => f.name),
       });
 
@@ -624,7 +637,7 @@ const ManageDocs = () => {
         );
       });
 
-      const response = await API.post("/api/documents/upload", formData, {
+      const response = await API.post("api/documents/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -646,7 +659,8 @@ const ManageDocs = () => {
       <DocumentViewerModal
         show={viewerModal.show}
         doc={viewerModal.doc}
-        onClose={() => setViewerModal({ show: false, doc: null })}
+        password={viewerModal.password}
+        onClose={() => setViewerModal({ show: false, doc: null, password: "" })}
       />
       <h1 className="text-2xl font-bold">Document Manager</h1>
 
@@ -669,7 +683,7 @@ const ManageDocs = () => {
 
       <div className="overflow-x-auto bg-white rounded-lg shadow">
         {isLoading ? (
-          <div className="p-4 text-center">Loading documents...</div>
+          <Loading />
         ) : currentDocs.length === 0 ? (
           <div className="p-4 text-center text-gray-500">
             {searchTerm
@@ -732,11 +746,11 @@ const ManageDocs = () => {
                   }
                   try {
                     const response = await API.patch(
-                      `/api/documents/${protectModal.docId}/protect`,
+                      `api/documents/${protectModal.docId}/protect`,
                       {
                         email: user.email,
                         protect: protectModal.protect,
-                        password,
+                        password: password, // Make sure to include the password
                       }
                     );
 
@@ -752,7 +766,10 @@ const ManageDocs = () => {
                     });
                   } catch (error) {
                     console.error("Password set failed:", error);
-                    alert("Failed to set document password");
+                    alert(
+                      error.response?.data?.error ||
+                        "Failed to set document password"
+                    );
                   }
                 }}
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"

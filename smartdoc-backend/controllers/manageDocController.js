@@ -86,7 +86,7 @@ export const uploadDocuments = async (req, res) => {
 
 export const viewDocument = async (req, res) => {
   try {
-    const { email } = req.query;
+    const { email, password } = req.query;
     const { id } = req.params;
 
     if (!email) return res.status(400).json({ error: "Email required" });
@@ -95,16 +95,27 @@ export const viewDocument = async (req, res) => {
     if (!doc) return res.status(404).json({ error: "Document not found" });
 
     if (doc.protected) {
-      return res.status(403).json({ error: "Document is password protected" });
+      if (!password) {
+        return res
+          .status(403)
+          .json({ error: "Document is password protected" });
+      }
+
+      if (!doc.password) {
+        return res.status(500).json({ error: "Password not set on document" });
+      }
+
+      const isMatch = await bcrypt.compare(password, doc.password);
+      if (!isMatch) {
+        return res.status(403).json({ error: "Incorrect password" });
+      }
     }
 
     const filePath = path.join(__dirname, "../uploads", doc.filename);
 
-    // For images and PDFs, send the file directly
     if (doc.mimetype.includes("image") || doc.mimetype.includes("pdf")) {
       res.sendFile(filePath);
     } else {
-      // For other types, force download
       res.download(filePath, doc.originalname);
     }
   } catch (error) {
@@ -115,7 +126,7 @@ export const viewDocument = async (req, res) => {
 
 export const downloadDocument = async (req, res) => {
   try {
-    const { email } = req.query;
+    const { email, password } = req.query;
     const { id } = req.params;
 
     if (!email) return res.status(400).json({ error: "Email required" });
@@ -124,7 +135,20 @@ export const downloadDocument = async (req, res) => {
     if (!doc) return res.status(404).json({ error: "Document not found" });
 
     if (doc.protected) {
-      return res.status(403).json({ error: "Document is password protected" });
+      if (!password) {
+        return res
+          .status(403)
+          .json({ error: "Document is password protected" });
+      }
+
+      if (!doc.password) {
+        return res.status(500).json({ error: "Password not set on document" });
+      }
+
+      const isMatch = await bcrypt.compare(password, doc.password);
+      if (!isMatch) {
+        return res.status(403).json({ error: "Incorrect password" });
+      }
     }
 
     const filePath = path.join(__dirname, "../uploads", doc.filename);
@@ -155,33 +179,30 @@ export const protectDocument = async (req, res) => {
     const { id } = req.params;
 
     if (!email) return res.status(400).json({ error: "Email required" });
-    if (protect && !password) {
-      return res
-        .status(400)
-        .json({ error: "Password required when protecting" });
-    }
 
     const doc = await Document.findOne({ _id: id, userId: email });
     if (!doc) return res.status(404).json({ error: "Document not found" });
 
-    const update = { protected: protect };
+    let update = { protected: protect };
 
     if (protect) {
+      if (!password) {
+        return res
+          .status(400)
+          .json({ error: "Password required for protection" });
+      }
       const salt = await bcrypt.genSalt(10);
       update.password = await bcrypt.hash(password, salt);
     } else {
       update.password = undefined;
     }
 
-    const updatedDoc = await Document.findOneAndUpdate(
-      { _id: id, userId: email },
-      update,
-      { new: true }
-    ).select("-password");
-
+    const updatedDoc = await Document.findByIdAndUpdate(id, update, {
+      new: true,
+    });
     res.json(updatedDoc);
   } catch (error) {
-    console.error("Protection error:", error);
+    console.error("Protect error:", error);
     res.status(500).json({ error: "Failed to update document protection" });
   }
 };
