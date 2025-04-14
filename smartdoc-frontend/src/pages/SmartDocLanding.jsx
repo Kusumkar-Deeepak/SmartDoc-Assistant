@@ -99,7 +99,7 @@ const SmartDocLanding = () => {
               <div className="px-4 py-2 space-y-2">
                 <button
                   onClick={handleTryFree}
-                  className="w-full px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg text-white"
+                  className="w-full px-4 py-2 m-2 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg text-white"
                 >
                   {isAuthenticated ? "Dashboard" : "Try It Free"}
                 </button>
@@ -341,7 +341,9 @@ const SmartDocLanding = () => {
                               <div className="h-1 sm:h-2 bg-green-400 rounded w-8 sm:w-12"></div>
                             </div>
                           </div>
-                          <p className="text-xs sm:text-sm">256-bit encryption active</p>
+                          <p className="text-xs sm:text-sm">
+                            256-bit encryption active
+                          </p>
                         </div>
                       )}
                     </motion.div>
