@@ -14,17 +14,17 @@ import {
   FiUser,
   FiSettings,
   FiHelpCircle,
-  FiHome,
   FiMoon,
   FiSun,
   FiBell,
   FiGlobe,
+  FiBookOpen,
 } from "react-icons/fi";
 import UploadExtract from "../components/Dashboard-Components/UploadExtract";
 import Summarize from "../components/Dashboard-Components/Summarize";
 import AIQnA from "../components/Dashboard-Components/AIQnA";
-import ManageDocs from "../components/Dashboard-Components/ManageDocs";
 import InsightMirror from "../components/Dashboard-Components/InsightMirror";
+import SmartWriter from "../components/Dashboard-Components/SmartWriter";
 
 const Dashboard = () => {
   const { isAuthenticated, isLoading, user, logout } = useAuth0();
@@ -65,10 +65,10 @@ const Dashboard = () => {
     },
     { id: "qa", name: "AI Q&A", icon: <FiFileText />, component: <AIQnA /> },
     {
-      id: "manage",
-      name: "Manage Docs",
-      icon: <FiShield />,
-      component: <ManageDocs />,
+      id: "generate",
+      name: "SmartWriter",
+      icon: <FiBookOpen />,
+      component: <SmartWriter />,
     },
   ];
 

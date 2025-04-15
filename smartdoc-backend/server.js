@@ -4,12 +4,12 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
-import connectDB from "./config/db.js";
+// import connectDB from "./config/db.js";
 import summarizeRoutes from "./routes/summarizeRoutes.js";
 import qnaRoutes from "./routes/qna_routes.js";
 import insightMirrorRouter from "./routes/insightMirrorRoutes.js";
 import extractorRoutes from "./routes/extractorRoutes.js";
-import docRoutes from "./routes/manageDocRoutes.js";
+import reportRoutes from "./routes/reportRoutes.js";
 
 dotenv.config();
 
@@ -19,6 +19,7 @@ const app = express();
 app.use(
   cors({
     origin: "https://smartdoc-ai.onrender.com", // Your frontend URL
+    // origin: "http://localhost:5173", // Your frontend URL
     credentials: true,
   })
 );
@@ -27,8 +28,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Connect to database
-connectDB();
+// // Connect to database
+// connectDB();
 
 // Uptime Robot Ping
 app.get("/", (req, res) => {
@@ -40,7 +41,7 @@ app.use("/api/summarize", summarizeRoutes);
 app.use("/api/ai-qna", qnaRoutes);
 app.use("/api/insight-mirror", insightMirrorRouter);
 app.use("/api/ai", extractorRoutes);
-app.use("/api/documents", docRoutes);
+app.use("/api/report", reportRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
