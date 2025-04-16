@@ -52,44 +52,21 @@ const SmartWriter = () => {
                 <label className="block text-sm font-medium text-gray-700">
                   Select Output Format
                 </label>
-                <div className="lg:hidden flex overflow-x-auto pb-1 scrollbar-hide">
-                  <div className="flex border-b min-w-max">
+                <div className="flex flex-col sm:flex-row sm:space-x-3 space-y-2 sm:space-y-0">
+                  {["pdf", "docx", "pptx"].map((type) => (
                     <button
-                      className={`px-4 py-2 font-medium flex items-center gap-2 ${
-                        activeTab === "upload"
-                          ? "text-blue-600 border-b-2 border-blue-600"
-                          : "text-gray-500"
+                      key={type}
+                      type="button"
+                      onClick={() => setSelectedFileType(type)}
+                      className={`py-2 px-4 rounded-md border transition-all ${
+                        selectedFileType === type
+                          ? "bg-indigo-600 text-white border-indigo-600 shadow-md"
+                          : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-indigo-300"
                       }`}
-                      onClick={() => setActiveTab("upload")}
                     >
-                      <FiUpload size={16} />
-                      Upload
+                      {type.toUpperCase()}
                     </button>
-                    <button
-                      className={`px-4 py-2 font-medium flex items-center gap-2 ${
-                        activeTab === "ask"
-                          ? "text-blue-600 border-b-2 border-blue-600"
-                          : "text-gray-500"
-                      }`}
-                      onClick={() => setActiveTab("ask")}
-                      disabled={uploadedDocs.length === 0}
-                    >
-                      <FiSearch size={16} />
-                      Ask
-                    </button>
-                    <button
-                      className={`px-4 py-2 font-medium flex items-center gap-2 ${
-                        activeTab === "questions"
-                          ? "text-blue-600 border-b-2 border-blue-600"
-                          : "text-gray-500"
-                      }`}
-                      onClick={() => setActiveTab("questions")}
-                      disabled={uploadedDocs.length === 0}
-                    >
-                      <FiFile size={16} />
-                      Questions
-                    </button>
-                  </div>
+                  ))}
                 </div>
               </div>
 
