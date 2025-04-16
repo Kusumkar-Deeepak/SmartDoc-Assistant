@@ -162,7 +162,7 @@ const AIExplanation = ({ selectedText, fullText }) => {
             ? "Custom Question"
             : "Or Ask Custom Question"}
         </h4>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <input
             type="text"
             value={customPrompt}
@@ -180,7 +180,7 @@ const AIExplanation = ({ selectedText, fullText }) => {
               !customPrompt.trim() ||
               !(mode === "selection" ? hasSelectedText : hasFullText)
             }
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 sm:w-auto w-full"
           >
             Ask
           </button>

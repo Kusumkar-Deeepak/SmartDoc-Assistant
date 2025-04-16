@@ -19,6 +19,7 @@ import {
   FiBell,
   FiGlobe,
   FiBookOpen,
+  FiEdit,
 } from "react-icons/fi";
 import UploadExtract from "../components/Dashboard-Components/UploadExtract";
 import Summarize from "../components/Dashboard-Components/Summarize";
@@ -67,7 +68,7 @@ const Dashboard = () => {
     {
       id: "generate",
       name: "SmartWriter",
-      icon: <FiBookOpen />,
+      icon: <FiEdit />,
       component: <SmartWriter />,
     },
   ];

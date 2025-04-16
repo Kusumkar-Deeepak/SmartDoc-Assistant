@@ -172,42 +172,44 @@ const AIQnA = () => {
       </h3>
 
       {/* Mobile Tabs */}
-      <div className="lg:hidden flex border-b">
-        <button
-          className={`px-4 py-2 font-medium flex items-center gap-2 ${
-            activeTab === "upload"
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-500"
-          }`}
-          onClick={() => setActiveTab("upload")}
-        >
-          <FiUpload size={16} />
-          Upload
-        </button>
-        <button
-          className={`px-4 py-2 font-medium flex items-center gap-2 ${
-            activeTab === "ask"
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-500"
-          }`}
-          onClick={() => setActiveTab("ask")}
-          disabled={uploadedDocs.length === 0}
-        >
-          <FiSearch size={16} />
-          Ask
-        </button>
-        <button
-          className={`px-4 py-2 font-medium flex items-center gap-2 ${
-            activeTab === "questions"
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-500"
-          }`}
-          onClick={() => setActiveTab("questions")}
-          disabled={uploadedDocs.length === 0}
-        >
-          <FiFile size={16} />
-          Questions
-        </button>
+      <div className="lg:hidden flex overflow-x-auto pb-1 scrollbar-hide">
+        <div className="flex border-b min-w-max">
+          <button
+            className={`px-4 py-2 font-medium flex items-center gap-2 ${
+              activeTab === "upload"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500"
+            }`}
+            onClick={() => setActiveTab("upload")}
+          >
+            <FiUpload size={16} />
+            Upload
+          </button>
+          <button
+            className={`px-4 py-2 font-medium flex items-center gap-2 ${
+              activeTab === "ask"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500"
+            }`}
+            onClick={() => setActiveTab("ask")}
+            disabled={uploadedDocs.length === 0}
+          >
+            <FiSearch size={16} />
+            Ask
+          </button>
+          <button
+            className={`px-4 py-2 font-medium flex items-center gap-2 ${
+              activeTab === "questions"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500"
+            }`}
+            onClick={() => setActiveTab("questions")}
+            disabled={uploadedDocs.length === 0}
+          >
+            <FiFile size={16} />
+            Questions
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">

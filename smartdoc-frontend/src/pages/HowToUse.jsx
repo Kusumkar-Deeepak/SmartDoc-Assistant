@@ -8,12 +8,14 @@ import {
   FiLock,
   FiDownload,
   FiTrash2,
+  FiEdit,
 } from "react-icons/fi";
 import {
   FaRobot,
   FaLightbulb,
   FaQuestionCircle,
   FaFolderOpen,
+  FaPenNib,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -91,15 +93,15 @@ const HowToUse = () => {
       animation: "rotateIn",
     },
     {
-      title: "Manage Docs",
-      icon: <FaFolderOpen />,
+      title: "Smart Writer",
+      icon: <FaPenNib />,
       description:
-        "Securely store, organize, and manage all your documents with password protection.",
+        "Generate high-quality content from your prompts and export it as PDF, DOCX, or PPT effortlessly.",
       steps: [
-        "Store unlimited documents",
-        "Add password protection",
-        "Quickly view/download files",
-        "Delete documents when needed",
+        "Enter your custom prompt",
+        "AI writes content based on your input",
+        "Preview and edit generated content",
+        "Export the content to your files",
       ],
       animation: "fadeInRight",
     },
@@ -135,14 +137,17 @@ const HowToUse = () => {
               onMouseEnter={() => setHoveredTab(index)}
               onMouseLeave={() => setHoveredTab(null)}
               onClick={() => setActiveTab(index)}
-              className={`px-6 py-3 rounded-full font-medium transition-colors relative ${
+              className={`relative px-6 py-3 rounded-full font-medium transition-colors flex items-center gap-2 ${
                 activeTab === index
                   ? "bg-blue-600 text-white"
                   : "bg-white text-gray-700 hover:bg-blue-100"
               }`}
             >
-              {feature.icon}
-              <span className="ml-2">{feature.title}</span>
+              <div className="flex items-center">
+                {feature.icon}
+                <span className="ml-2">{feature.title}</span>
+              </div>
+
               {hoveredTab === index && (
                 <motion.div
                   layoutId="hoverIndicator"
@@ -319,26 +324,42 @@ const HowToUse = () => {
 
                   {activeTab === 4 && (
                     <div className="p-6">
-                      <div className="space-y-3">
+                      <h2 className="text-xl font-semibold mb-4 text-gray-800">
+                        Generated Smart Writer Content
+                      </h2>
+                      <div className="space-y-4">
                         {[
-                          "Annual_Report.pdf",
-                          "Contract.docx",
-                          "Notes.txt",
-                        ].map((file, i) => (
+                          {
+                            title: "Report on Generative AI",
+                            formatOptions: ["PDF", "DOCX"],
+                          },
+                          {
+                            title: "Startup Pitch Deck",
+                            formatOptions: ["PPT"],
+                          },
+                          {
+                            title: "Resume for Full Stack Developer",
+                            formatOptions: ["DOCX", "PDF"],
+                          },
+                        ].map((item, i) => (
                           <div
                             key={i}
-                            className="flex items-center justify-between p-2 hover:bg-gray-100 rounded"
+                            className="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-4 rounded-lg shadow hover:shadow-md transition"
                           >
-                            <span className="truncate">{file}</span>
-                            <div className="flex space-x-2">
-                              <button className="text-gray-500 hover:text-blue-600">
-                                <FiLock size={16} />
-                              </button>
-                              <button className="text-gray-500 hover:text-blue-600">
-                                <FiDownload size={16} />
-                              </button>
-                              <button className="text-gray-500 hover:text-red-600">
-                                <FiTrash2 size={16} />
+                            <div>
+                              <h3 className="font-medium text-gray-700 text-base mb-1 sm:mb-0">
+                                {item.title}
+                              </h3>
+                              <p className="text-sm text-gray-500">
+                                Format options: {item.formatOptions.join(", ")}
+                              </p>
+                            </div>
+                            <div className="flex mt-2 sm:mt-0 space-x-3">
+                              <button
+                                title="Edit Content"
+                                className="text-gray-500 hover:text-indigo-600 transition"
+                              >
+                                <FiEdit size={18} />
                               </button>
                             </div>
                           </div>
