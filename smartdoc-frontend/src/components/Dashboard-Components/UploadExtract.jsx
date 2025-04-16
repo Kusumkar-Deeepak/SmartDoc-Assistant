@@ -562,31 +562,30 @@ const UploadExtract = () => {
           )}
         </div>
       )}
-      <button
-        onClick={() => setShowExplanation(!showExplanation)}
-        className={`p-2 rounded-md flex items-center gap-1 transition-all ${
-          showExplanation
-            ? "bg-blue-100 text-blue-600 ring-2 ring-blue-300"
-            : "hover:bg-gray-100 text-gray-600"
-        } ${
-          isProcessing || !extractedText ? "opacity-50 cursor-not-allowed" : ""
-        }`}
-        title={
-          isProcessing
-            ? "Please wait while processing completes"
-            : !extractedText
-            ? "Upload or extract text first"
-            : showExplanation
-            ? "Close AI Assistant"
-            : "Open AI Assistant"
-        }
-        disabled={isProcessing || !extractedText}
-      >
-        <FiMessageSquare className="w-5 h-5" />
-        <span className="hidden sm:inline text-sm font-medium">
-          {showExplanation ? "Close AI" : "AI Assistant"}
+      <div className="flex flex-col items-center">
+        <button
+          onClick={() => setShowExplanation(!showExplanation)}
+          className={`p-2 rounded-md flex items-center gap-1 transition-all ${
+            showExplanation
+              ? "bg-blue-100 text-blue-600 ring-2 ring-blue-300"
+              : "hover:bg-gray-100 text-gray-600"
+          } ${
+            isProcessing || !extractedText
+              ? "opacity-50 cursor-not-allowed"
+              : ""
+          }`}
+          disabled={isProcessing || !extractedText}
+        >
+          <FiMessageSquare className="w-5 h-5" />
+          <span className="sr-only sm:not-sr-only sm:inline text-sm font-medium">
+            {showExplanation ? "Close AI" : "AI Assistant"}
+          </span>
+        </button>
+        {/* Mobile label below button */}
+        <span className="sm:hidden text-xs text-gray-500 mt-1">
+          {showExplanation ? "" : "AI Assistant"}
         </span>
-      </button>
+      </div>
 
       {showExplanation && (
         <div className="mt-4 animate-fade-in">
