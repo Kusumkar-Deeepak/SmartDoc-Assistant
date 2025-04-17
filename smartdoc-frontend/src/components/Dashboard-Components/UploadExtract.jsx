@@ -43,18 +43,21 @@ const UploadExtract = () => {
   const formatText = (text) => {
     if (!text) return "";
 
-    return text.split("\n").map(line => {
-      const leadingWhitespace = line.match(/^\s*/)[0];
-      const content = line.trim();
+    return text
+      .split("\n")
+      .map((line) => {
+        const leadingWhitespace = line.match(/^\s*/)[0];
+        const content = line.trim();
 
-      if (/^\d+\./.test(content)) return `${leadingWhitespace}${content}`;
-      if (/^[-•*]/.test(content)) return `${leadingWhitespace}${content}`;
-      if (line.includes("  ") && line.trim().split(/\s{2,}/).length > 2) {
-        return line.replace(/\s{2,}/g, "    ");
-      }
+        if (/^\d+\./.test(content)) return `${leadingWhitespace}${content}`;
+        if (/^[-•*]/.test(content)) return `${leadingWhitespace}${content}`;
+        if (line.includes("  ") && line.trim().split(/\s{2,}/).length > 2) {
+          return line.replace(/\s{2,}/g, "    ");
+        }
 
-      return line;
-    }).join("\n");
+        return line;
+      })
+      .join("\n");
   };
 
   const escapeRegExp = (string) => {
@@ -69,18 +72,19 @@ const UploadExtract = () => {
     }
   }, []);
 
-  const handleZoomIn = () => setZoomLevel(prev => Math.min(prev + 10, 200));
-  const handleZoomOut = () => setZoomLevel(prev => Math.max(prev - 10, 50));
+  const handleZoomIn = () => setZoomLevel((prev) => Math.min(prev + 10, 200));
+  const handleZoomOut = () => setZoomLevel((prev) => Math.max(prev - 10, 50));
   const handleSearch = (e) => setSearchTerm(e.target.value);
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(extractedText)
+    navigator.clipboard
+      .writeText(extractedText)
       .then(() => {
         setIsTextCopied(true);
         toast.success("Text copied to clipboard!");
         setTimeout(() => setIsTextCopied(false), 2000);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error("Failed to copy text: ", err);
         toast.error("Failed to copy text");
       });
@@ -118,13 +122,21 @@ const UploadExtract = () => {
     try {
       let text;
       switch (file.type) {
-        case "application/pdf": text = await extractTextFromPDF(file); break;
+        case "application/pdf":
+          text = await extractTextFromPDF(file);
+          break;
         case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-          text = await extractTextFromDocx(file); break;
+          text = await extractTextFromDocx(file);
+          break;
         case "image/jpeg":
-        case "image/png": text = await extractTextFromImage(file); break;
-        case "text/plain": text = await extractTextFromTxt(file); break;
-        default: throw new Error("Unsupported file type");
+        case "image/png":
+          text = await extractTextFromImage(file);
+          break;
+        case "text/plain":
+          text = await extractTextFromTxt(file);
+          break;
+        default:
+          throw new Error("Unsupported file type");
       }
 
       setExtractedText(text);
@@ -132,7 +144,9 @@ const UploadExtract = () => {
       return true;
     } catch (error) {
       console.error("Extraction error:", error);
-      setError(`${file.name} is damaged or cannot be opened. Please try a different file.`);
+      setError(
+        `${file.name} is damaged or cannot be opened. Please try a different file.`
+      );
       toast.error(error.message || "Failed to extract text");
       return false;
     } finally {
@@ -151,7 +165,8 @@ const UploadExtract = () => {
     }, []),
     accept: {
       "application/pdf": [".pdf"],
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        [".docx"],
       "text/plain": [".txt"],
       "image/jpeg": [".jpg", ".jpeg"],
       "image/png": [".png"],
@@ -165,7 +180,8 @@ const UploadExtract = () => {
     const container = textContainerRef.current;
     if (container) {
       container.addEventListener("mouseup", handleTextSelection);
-      return () => container.removeEventListener("mouseup", handleTextSelection);
+      return () =>
+        container.removeEventListener("mouseup", handleTextSelection);
     }
   }, [handleTextSelection]);
 
@@ -193,12 +209,28 @@ const UploadExtract = () => {
 
     return text.split(/\n\s*\n/).map((section, i) => {
       if (/^#\s/.test(section)) {
-        return <h1 key={i} className="document-title">{section.replace(/^#\s/, "")}</h1>;
+        return (
+          <h1 key={i} className="document-title">
+            {section.replace(/^#\s/, "")}
+          </h1>
+        );
       } else if (/^##\s/.test(section)) {
-        return <h2 key={i} className="document-section">{section.replace(/^##\s/, "")}</h2>;
+        return (
+          <h2 key={i} className="document-section">
+            {section.replace(/^##\s/, "")}
+          </h2>
+        );
       } else if (/^###\s/.test(section)) {
-        return <h3 key={i} className="document-subsection">{section.replace(/^###\s/, "")}</h3>;
-      } else if (/^\*\s/.test(section) || /^-\s/.test(section) || /^\d+\.\s/.test(section)) {
+        return (
+          <h3 key={i} className="document-subsection">
+            {section.replace(/^###\s/, "")}
+          </h3>
+        );
+      } else if (
+        /^\*\s/.test(section) ||
+        /^-\s/.test(section) ||
+        /^\d+\.\s/.test(section)
+      ) {
         return (
           <ul key={i} className="document-list">
             {section.split("\n").map((item, j) => (
@@ -209,7 +241,11 @@ const UploadExtract = () => {
           </ul>
         );
       } else {
-        return <p key={i} className="document-paragraph">{section}</p>;
+        return (
+          <p key={i} className="document-paragraph">
+            {section}
+          </p>
+        );
       }
     });
   };
@@ -225,13 +261,21 @@ const UploadExtract = () => {
       <div
         {...getRootProps()}
         className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
-          isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-white"
+          isDragActive
+            ? "border-blue-500 bg-blue-50"
+            : "border-gray-300 bg-white"
         }`}
       >
         <input {...getInputProps()} />
-        <FiUpload className={`mx-auto h-12 w-12 ${isDragActive ? "text-blue-500" : "text-gray-400"}`} />
+        <FiUpload
+          className={`mx-auto h-12 w-12 ${
+            isDragActive ? "text-blue-500" : "text-gray-400"
+          }`}
+        />
         <p className="mt-2 text-sm text-gray-600">
-          {isDragActive ? "Drop the file here" : "Drag and drop files here or click to browse"}
+          {isDragActive
+            ? "Drop the file here"
+            : "Drag and drop files here or click to browse"}
         </p>
         <button
           className={`mt-4 px-4 py-2 text-white rounded-md cursor-pointer inline-block ${
@@ -249,52 +293,70 @@ const UploadExtract = () => {
       {/* Document Processing Section */}
       {(extractedText || isProcessing) && (
         <div className="bg-white p-4 rounded-lg shadow-md">
-          <div className="flex justify-between items-center mb-4">
-            <h4 className="font-medium text-blue-800">
+          {/* Header with filename and controls */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+            <h4 className="font-medium text-blue-800 truncate max-w-full">
               {fileName} {isProcessing && "(Processing...)"}
             </h4>
 
-            <div className="flex space-x-2">
-              <button
-                onClick={handleZoomOut}
-                className="p-2 rounded hover:bg-gray-100"
-                title="Zoom Out"
-                disabled={isProcessing}
-              >
-                <FiZoomOut />
-              </button>
-              <span className="flex items-center px-2">{zoomLevel}%</span>
-              <button
-                onClick={handleZoomIn}
-                className="p-2 rounded hover:bg-gray-100"
-                title="Zoom In"
-                disabled={isProcessing}
-              >
-                <FiZoomIn />
-              </button>
+            {/* Toolbar - now responsive with better spacing */}
+            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+              {/* Zoom Controls */}
+              <div className="flex items-center bg-gray-100 rounded-md p-1">
+                <button
+                  onClick={handleZoomOut}
+                  className="p-1.5 rounded hover:bg-gray-200 transition-colors"
+                  title="Zoom Out"
+                  disabled={isProcessing}
+                >
+                  <FiZoomOut className="text-gray-700" />
+                </button>
+                <span className="px-2 text-sm text-gray-700">{zoomLevel}%</span>
+                <button
+                  onClick={handleZoomIn}
+                  className="p-1.5 rounded hover:bg-gray-200 transition-colors"
+                  title="Zoom In"
+                  disabled={isProcessing}
+                >
+                  <FiZoomIn className="text-gray-700" />
+                </button>
+              </div>
 
-              <button
-                onClick={copyToClipboard}
-                className={`p-2 rounded hover:bg-gray-100 ${isTextCopied ? "text-green-500" : ""}`}
-                title="Copy to Clipboard"
-                disabled={isProcessing}
-              >
-                <FiCopy />
-              </button>
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                <button
+                  onClick={copyToClipboard}
+                  className={`p-1.5 rounded-md flex items-center gap-1 text-sm ${
+                    isTextCopied
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                  } transition-colors`}
+                  title="Copy to Clipboard"
+                  disabled={isProcessing}
+                >
+                  <FiCopy />
+                  <span className="hidden sm:inline">Copy</span>
+                </button>
 
-              <button
-                onClick={() => setShowExplanation(!showExplanation)}
-                className={`p-2 rounded hover:bg-gray-100 ${
-                  showExplanation ? "text-blue-500 bg-blue-50" : "text-gray-600"
-                }`}
-                title="AI Assistant"
-                disabled={isProcessing}
-              >
-                <FiMessageSquare />
-              </button>
+                <button
+                  onClick={() => setShowExplanation(!showExplanation)}
+                  className={`p-1.5 rounded-md flex items-center gap-1 text-sm ${
+                    showExplanation
+                      ? "bg-blue-100 text-blue-600"
+                      : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                  } transition-colors`}
+                  disabled={isProcessing}
+                >
+                  <FiMessageSquare />
+                  <span className="hidden sm:inline">
+                    {showExplanation ? "Close AI" : "AI Assistant"}
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
 
+          {/* Search Bar */}
           <div className="relative mb-4">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <FiSearch className="text-gray-400" />
@@ -302,16 +364,26 @@ const UploadExtract = () => {
             <input
               type="text"
               placeholder="Search in document..."
-              className="pl-10 pr-4 py-2 w-full border rounded-md"
+              className="pl-10 pr-4 py-2 w-full border rounded-md focus:ring-2 focus:ring-blue-300 focus:border-blue-400"
               value={searchTerm}
               onChange={handleSearch}
               disabled={isProcessing}
             />
+            {searchTerm && (
+              <div className="absolute right-2 top-2 flex items-center gap-1">
+                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                  {searchResults.length > 0
+                    ? `${currentSearchIndex + 1}/${searchResults.length}`
+                    : "0 results"}
+                </span>
+              </div>
+            )}
           </div>
 
+          {/* Document Content */}
           <div
             ref={contentContainerRef}
-            className="p-3 rounded border border-gray-200 min-h-32 max-h-96 overflow-auto bg-white"
+            className="p-3 rounded border border-gray-200 min-h-[200px] max-h-[400px] sm:max-h-[500px] overflow-auto bg-white shadow-inner"
             style={{
               fontFamily: "monospace",
               fontSize: `${zoomLevel}%`,
@@ -325,6 +397,7 @@ const UploadExtract = () => {
             ) : (
               <div
                 ref={textContainerRef}
+                className="prose max-w-none"
                 style={{
                   whiteSpace: "pre-wrap",
                   wordBreak: "break-word",
@@ -336,12 +409,22 @@ const UploadExtract = () => {
             )}
           </div>
 
+          {/* Document Stats */}
           {!isProcessing && extractedText && (
-            <div className="mt-2 text-sm text-gray-500">
-              <p>Characters: {extractedText.length.toLocaleString()}</p>
-              <p>
-                Words: {extractedText.split(/\s+/).filter(Boolean).length.toLocaleString()}
-              </p>
+            <div className="mt-3 flex flex-wrap justify-between items-center text-sm text-gray-500 bg-gray-50 p-2 rounded">
+              <div className="flex gap-3">
+                <span>Characters: {extractedText.length.toLocaleString()}</span>
+                <span>
+                  Words:{" "}
+                  {extractedText
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .length.toLocaleString()}
+                </span>
+              </div>
+              <div className="mt-1 sm:mt-0 text-xs text-gray-400">
+                Page {currentPage} of {textChunks.length || 1}
+              </div>
             </div>
           )}
         </div>
