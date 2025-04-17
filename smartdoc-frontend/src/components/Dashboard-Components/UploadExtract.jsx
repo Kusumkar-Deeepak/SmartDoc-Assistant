@@ -474,6 +474,18 @@ const UploadExtract = () => {
               >
                 <FiCopy />
               </button>
+
+              {/* AI Assistant Button - Added to toolbar */}
+              <button
+                onClick={() => setShowExplanation(!showExplanation)}
+                className={`p-2 rounded hover:bg-gray-100 ${
+                  showExplanation ? "text-blue-500 bg-blue-50" : "text-gray-600"
+                }`}
+                title="AI Assistant"
+                disabled={isProcessing}
+              >
+                <FiMessageSquare />
+              </button>
             </div>
           </div>
 
@@ -562,33 +574,10 @@ const UploadExtract = () => {
           )}
         </div>
       )}
-      <div className="flex flex-col items-center">
-        <button
-          onClick={() => setShowExplanation(!showExplanation)}
-          className={`p-2 rounded-md flex items-center gap-1 transition-all ${
-            showExplanation
-              ? "bg-blue-100 text-blue-600 ring-2 ring-blue-300"
-              : "hover:bg-gray-100 text-gray-600"
-          } ${
-            isProcessing || !extractedText
-              ? "opacity-50 cursor-not-allowed"
-              : ""
-          }`}
-          disabled={isProcessing || !extractedText}
-        >
-          <FiMessageSquare className="w-5 h-5" />
-          <span className="sr-only sm:not-sr-only sm:inline text-sm font-medium">
-            {showExplanation ? "Close AI" : "AI Assistant"}
-          </span>
-        </button>
-        {/* Mobile label below button */}
-        <span className="sm:hidden text-xs text-gray-500 mt-1">
-          {showExplanation ? "" : "AI Assistant"}
-        </span>
-      </div>
 
+      {/* AI Explanation Panel - Now appears right below the document container */}
       {showExplanation && (
-        <div className="mt-4 animate-fade-in">
+        <div className="mt-2 animate-fade-in">
           <AIExplanation
             selectedText={selectedText}
             fullText={extractedText}
@@ -599,7 +588,7 @@ const UploadExtract = () => {
       )}
 
       {error && (
-        <div className="mb-6 p-3 bg-red-50 text-red-700 rounded-lg border border-red-200">
+        <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-lg border border-red-200">
           {error}
         </div>
       )}
