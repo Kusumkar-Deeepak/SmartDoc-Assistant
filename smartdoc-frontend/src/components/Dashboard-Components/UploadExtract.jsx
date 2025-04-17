@@ -340,15 +340,18 @@ const UploadExtract = () => {
 
                 <button
                   onClick={() => setShowExplanation(!showExplanation)}
-                  className={`p-1.5 rounded-md flex items-center gap-1 text-sm ${
+                  className={`p-2 rounded-md flex items-center gap-1 text-sm ${
                     showExplanation
-                      ? "bg-blue-100 text-blue-600"
+                      ? "bg-blue-100 text-blue-600 ring-2 ring-blue-200"
                       : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                  } transition-colors`}
+                  } transition-all duration-200`}
                   disabled={isProcessing}
+                  aria-label={
+                    showExplanation ? "Close AI Assistant" : "Open AI Assistant"
+                  }
                 >
-                  <FiMessageSquare />
-                  <span className="hidden sm:inline">
+                  <FiMessageSquare className="flex-shrink-0" />
+                  <span className="whitespace-nowrap">
                     {showExplanation ? "Close AI" : "AI Assistant"}
                   </span>
                 </button>
