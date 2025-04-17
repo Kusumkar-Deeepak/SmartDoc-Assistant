@@ -346,13 +346,11 @@ const UploadExtract = () => {
                       : "bg-gray-100 hover:bg-gray-200 text-gray-700"
                   } transition-all duration-200`}
                   disabled={isProcessing}
-                  aria-label={
-                    showExplanation ? "Close AI Assistant" : "Open AI Assistant"
-                  }
+                  aria-label={showExplanation ? "Close AI" : "Open AI"}
                 >
                   <FiMessageSquare className="flex-shrink-0" />
                   <span className="whitespace-nowrap">
-                    {showExplanation ? "Close AI" : "AI Assistant"}
+                    {showExplanation ? "Close AI" : "AI"}
                   </span>
                 </button>
               </div>
