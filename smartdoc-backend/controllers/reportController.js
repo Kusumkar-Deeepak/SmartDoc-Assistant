@@ -6,7 +6,7 @@ export const generateReport = async (req, res) => {
   try {
     const { fileType, prompt, pageLimit } = req.body;
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     // Define formatting instructions for each file type
     const formatInstructions = {
