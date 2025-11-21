@@ -18,8 +18,8 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: "https://smartdoc-ai.onrender.com", // Your frontend URL
-    // origin: "http://localhost:5173", // Your frontend URL
+    // origin: "https://smartdoc-ai.onrender.com", // Your frontend URL
+    origin: "http://localhost:5173", // Your frontend URL
     credentials: true,
   })
 );
@@ -30,6 +30,15 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // // Connect to database
 // connectDB();
+
+// Enhanced health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({ 
+    status: "healthy", 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime() 
+  });
+});
 
 // Uptime Robot Ping
 app.get("/", (req, res) => {
