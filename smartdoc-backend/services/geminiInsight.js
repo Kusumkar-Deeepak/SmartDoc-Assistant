@@ -79,7 +79,7 @@ General Rules:
 
 export const getDocumentInsights = async (text) => {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `${systemInstructions}\n\nAnalyze this text:\n${text.substring(
       0,

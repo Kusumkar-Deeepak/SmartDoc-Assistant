@@ -24,7 +24,7 @@ Output only the summary text, without any additional commentary or labels.
 export const generateSummary = async (text) => {
   try {
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",
       systemInstruction,
     });
 
